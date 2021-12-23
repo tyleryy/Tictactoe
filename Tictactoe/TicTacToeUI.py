@@ -136,8 +136,17 @@ class TicTacToeGUI():
         if self.username.get() != self.current_turn.get():
             self.disable_Board()
             self.results.set('Waiting for move')
-            self.master.update()
-            move = self.client_socket.recv(1024).decode('ascii')
+            # self.master.update()
+            # move = self.client_socket.recv(1024).decode('ascii')
+            move = None
+            self.client_socket.settimeout(0.2)
+            while not move:
+                self.master.update()
+                try:
+                    move = self.client_socket.recv(1024).decode('ascii')
+                except socket.timeout:
+                    pass
+            self.client_socket.settimeout(None)
             
             #check letter of player
             other_letter = ' '
@@ -433,5 +442,3 @@ class TicTacToeGUI():
             socket.send(bytes(self.username.get(), 'utf-8'))
          
             return player1_username
-
-
